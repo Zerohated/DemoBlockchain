@@ -5,7 +5,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -26,7 +25,7 @@ const Difficulty = 1
 
 var (
 	Blockchain []Block
-	Mutex      = &sync.Mutex{}
+	// Mutex      = &sync.Mutex{}
 )
 
 func CalculateHash(block Block) string {

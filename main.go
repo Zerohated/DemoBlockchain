@@ -2,48 +2,22 @@ package main
 
 import (
 	"log"
-	"net/http"
-	"os"
 	"time"
 
 	"DemoBlockchain/controller"
 	"DemoBlockchain/model"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
+	"github.com/kataras/iris"
+	"github.com/kataras/iris/middleware/logger"
+	"github.com/kataras/iris/middleware/recover"
 )
 
 var (
 	// bcServer handles incoming concurrent model.Blocks
 	bcServer chan []model.Block
 )
-
-func run() error {
-	mux := makeMuxRouter()
-	httpAddr := os.Getenv("PORT")
-	log.Println("Listening on ", os.Getenv("PORT"))
-	s := &http.Server{
-		Addr:           ":" + httpAddr,
-		Handler:        mux,
-		ReadTimeout:    10 * time.Second,
-		WriteTimeout:   10 * time.Second,
-		MaxHeaderBytes: 1 << 20,
-	}
-
-	if err := s.ListenAndServe(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func makeMuxRouter() http.Handler {
-	muxRouter := mux.NewRouter()
-	muxRouter.HandleFunc("/", controller.HandleGetBlockchain).Methods("GET")
-	muxRouter.HandleFunc("/", controller.HandleWriteBlock).Methods("POST")
-	return muxRouter
-}
 
 func main() {
 	err := godotenv.Load()
@@ -57,10 +31,26 @@ func main() {
 		genesisBlock = model.Block{0, t.String(), "genesisBlock is here", model.CalculateHash(genesisBlock), "", model.Difficulty, ""}
 		spew.Dump(genesisBlock)
 
-		model.Mutex.Lock()
 		model.Blockchain = append(model.Blockchain, genesisBlock)
-		model.Mutex.Unlock()
 	}()
-	log.Fatal(run())
-
+	// httpAddr := os.Getenv("PORT")
+	app := iris.New()
+	app.Logger().SetLevel("debug")
+	// Optionally, add two built'n handlers
+	// that can recover from any http-relative panics
+	// and log the requests to the terminal.
+	app.Use(recover.New())
+	app.Use(logger.New())
+	// Method:   GET
+	// Resource: http://localhost:8080
+	app.Handle("GET", "/", controller.HandleGetBlockchain)
+	app.Handle("POST", "/", controller.HandleWriteBlock)
+	// Server Configuration
+	// serverConfig := &http.Server{
+	// 	Addr:           ":" + httpAddr,
+	// 	ReadTimeout:    10 * time.Second,
+	// 	WriteTimeout:   10 * time.Second,
+	// 	MaxHeaderBytes: 1 << 20,
+	// }
+	app.Run(iris.Addr(":8080"), iris.WithConfiguration(iris.TOML("./configs/iris.tml")))
 }

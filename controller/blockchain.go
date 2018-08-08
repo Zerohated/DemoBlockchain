@@ -4,10 +4,15 @@ import (
 	"DemoBlockchain/model"
 	"encoding/json"
 	"fmt"
+	"sync"
 
 	"github.com/kataras/iris"
 
 	"github.com/davecgh/go-spew/spew"
+)
+
+var (
+	mutex = &sync.Mutex{}
 )
 
 func HandleGetBlockchain(ctx iris.Context) {
@@ -30,9 +35,9 @@ func HandleWriteBlock(ctx iris.Context) {
 
 	fmt.Printf("Received: %#+v\n", message)
 
-	// model.Mutex.Lock()
+	mutex.Lock()
 	newBlock := model.GenerateBlock(model.Blockchain[len(model.Blockchain)-1], message.Info)
-	// model.Mutex.Unlock()
+	mutex.Unlock()
 
 	if model.IsBlockValid(newBlock, model.Blockchain[len(model.Blockchain)-1]) {
 		newBlockchain := append(model.Blockchain, newBlock)

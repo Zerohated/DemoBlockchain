@@ -56,7 +56,7 @@ func GenerateBlock(oldBlock Block, info string) Block {
 		newBlock.Nonce = hex
 		if !IsHashValid(CalculateHash(newBlock), newBlock.Difficulty) {
 			fmt.Println(CalculateHash(newBlock), " do more work!")
-			time.Sleep(time.Second / 500)
+			time.Sleep(time.Second)
 			continue
 		} else {
 			fmt.Println(CalculateHash(newBlock), " work done!")

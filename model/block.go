@@ -36,7 +36,7 @@ func CalculateHash(block Block) string {
 	return hex.EncodeToString(hashed)
 }
 
-func IsHashValid(hash string, difficulty int) bool {
+func isHashValid(hash string, difficulty int) bool {
 	prefix := strings.Repeat("0", difficulty)
 	return strings.HasPrefix(hash, prefix)
 }
@@ -54,7 +54,7 @@ func GenerateBlock(oldBlock Block, info string) Block {
 	for i := 0; ; i++ {
 		hex := fmt.Sprintf("%x", i)
 		newBlock.Nonce = hex
-		if !IsHashValid(CalculateHash(newBlock), newBlock.Difficulty) {
+		if !isHashValid(CalculateHash(newBlock), newBlock.Difficulty) {
 			fmt.Println(CalculateHash(newBlock), " do more work!")
 			time.Sleep(time.Second)
 			continue

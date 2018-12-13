@@ -27,6 +27,7 @@ func HandleGetBlockchain(ctx iris.Context) {
 func HandleWriteBlock(ctx iris.Context) {
 	ctx.Header("Content-Type", "application/json")
 	var message model.Message
+	// message := model.Message{}
 	if err := ctx.ReadJSON(&message); err != nil {
 		ctx.StatusCode(iris.StatusBadRequest)
 		ctx.WriteString(err.Error())

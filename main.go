@@ -43,14 +43,11 @@ func main() {
 	app.Use(logger.New())
 	// Method:   GET
 	// Resource: http://localhost:8080
+	// Function: Shows all the blockchain info
 	app.Handle("GET", "/", controller.HandleGetBlockchain)
+	// Method:   POST
+	// Resource: http://localhost:8080
+	// Function: Insert new block
 	app.Handle("POST", "/", controller.HandleWriteBlock)
-	// Server Configuration
-	// serverConfig := &http.Server{
-	// 	Addr:           ":" + httpAddr,
-	// 	ReadTimeout:    10 * time.Second,
-	// 	WriteTimeout:   10 * time.Second,
-	// 	MaxHeaderBytes: 1 << 20,
-	// }
 	app.Run(iris.Addr(":8080"), iris.WithConfiguration(iris.TOML("./configs/iris.tml")))
 }
